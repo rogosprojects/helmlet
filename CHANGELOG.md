@@ -2,6 +2,14 @@
 
 All notable changes to the Helmlet project will be documented in this file.
 
+## [v0.0.16] - 2025-03-12
+### :bug: Bug Fixes
+- [`c421554`](https://github.com/rogosprojects/helmlet/commit/c4215543edfcbc2932a0e3b9407dd8370c3cebba) - update asset name format in release workflow *(commit by [@rogosprojects](https://github.com/rogosprojects))*
+
+### :wrench: Chores
+- [`9f89caa`](https://github.com/rogosprojects/helmlet/commit/9f89caafcecb949f2080c5243538ee9fe2eeba45) - update readme.md *(commit by [@rogosprojects](https://github.com/rogosprojects))*
+
+
 ## [Unreleased]
 - feat: add versioning to Go build and copy binary to /usr/local/bin/helmlet
 - feat: add Dockerfile for building and running Go application
@@ -41,3 +49,4 @@ All notable changes to the Helmlet project will be documented in this file.
 - init pipeline
 - fix: support for nested keys
 - support for inline params; add tests
+[v0.0.16]: https://github.com/rogosprojects/helmlet/compare/v0.0.15...v0.0.16
