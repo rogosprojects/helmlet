@@ -40,7 +40,7 @@ func main() {
 	flag.Parse()
 
 	fmt.Println("# Helmlet version:", Version)
-	
+
 	// Check that at least one template source is specified
 	if len(templateFiles) == 0 && templateDir == "" {
 		fmt.Println("Usage: helmlet --value values.yaml --template template.yaml [--set key1=val1,key2=val2] [--output output.yaml]")
@@ -59,7 +59,7 @@ func main() {
 
 	// Parse and apply set values
 	if *setValues != "" {
-		setValuesMap := parseSetValues(*setValues)
+		setValuesMap := parseSetValues(*setValues, *setValuesSep)
 		for k, v := range setValuesMap {
 			setNestedValue(values, strings.Split(k, "."), v)
 		}
@@ -68,13 +68,13 @@ func main() {
 	// Set up function map for templates
 	funcMap := createFuncMap()
 	delimiters := strings.Split(*delimiter, ",")
-	
+
 	// Process template files
 	templates := make([]string, 0)
-	
+
 	// Add individual template files
 	templates = append(templates, templateFiles...)
-	
+
 	// Add templates from directory if specified
 	if templateDir != "" {
 		dirTemplates, err := findTemplatesInDir(templateDir)
@@ -84,13 +84,13 @@ func main() {
 		}
 		templates = append(templates, dirTemplates...)
 	}
-	
+
 	// Process all templates
 	if len(templates) == 0 {
 		fmt.Println("No templates found to process")
 		return
 	}
-	
+
 	// Create output directory if needed
 	if outputDir != "" {
 		if err := os.MkdirAll(outputDir, 0755); err != nil {
@@ -98,13 +98,13 @@ func main() {
 			return
 		}
 	}
-	
+
 	// Special case: single template with outputFile
 	if len(templates) == 1 && *outputFile != "" {
 		processTemplate(templates[0], *outputFile, values, funcMap, delimiters, *strict)
 		return
 	}
-	
+
 	// Process multiple templates
 	for _, templatePath := range templates {
 		// Determine output file name
@@ -118,7 +118,7 @@ func main() {
 			processTemplateToStdout(templatePath, values, funcMap, delimiters, *strict)
 			continue
 		}
-		
+
 		processTemplate(templatePath, outFile, values, funcMap, delimiters, *strict)
 	}
 }
@@ -140,13 +140,13 @@ func loadValuesFile(filename string, values map[string]interface{}) error {
 	if err != nil {
 		return fmt.Errorf("reading file %s: %w", filename, err)
 	}
-	
+
 	// Parse YAML into a new map
 	newValues := make(map[string]interface{})
 	if err := yaml.Unmarshal(valuesData, &newValues); err != nil {
 		return fmt.Errorf("parsing YAML from %s: %w", filename, err)
 	}
-	
+
 	// Merge with existing values (values from later files override earlier ones)
 	mergeValues(values, newValues)
 	return nil
@@ -172,9 +172,9 @@ func findTemplatesInDir(dir string) ([]string, error) {
 		if err != nil {
 			return err
 		}
-		if !d.IsDir() && (strings.HasSuffix(path, ".yaml") || 
-						   strings.HasSuffix(path, ".yml") ||
-						   strings.HasSuffix(path, ".tpl")) {
+		if !d.IsDir() && (strings.HasSuffix(path, ".yaml") ||
+			strings.HasSuffix(path, ".yml") ||
+			strings.HasSuffix(path, ".tpl")) {
 			templates = append(templates, path)
 		}
 		return nil
@@ -295,18 +295,18 @@ func readUTF8File(filename string) ([]byte, error) {
 	return rawData, nil
 }
 
-func parseSetValues(setValues string) map[string]interface{} {
-	return parseSetValuesWithSeparator(setValues, *setValuesSep)
+func parseSetValues(setValues string, setValuesSep string) map[string]interface{} {
+	return parseSetValuesWithSeparator(setValues, setValuesSep)
 }
 
 func parseSetValuesWithSeparator(setValues string, separator string) map[string]interface{} {
 	result := make(map[string]interface{})
-	
+
 	// Use CSV parsing to handle values within quoted strings
 	r := csv.NewReader(strings.NewReader(setValues))
 	r.Comma = rune(separator[0])
 	r.LazyQuotes = true
-	
+
 	records, err := r.ReadAll()
 	if err != nil {
 		// Fallback to simple splitting if CSV parsing fails
@@ -319,7 +319,7 @@ func parseSetValuesWithSeparator(setValues string, separator string) map[string]
 		}
 		return result
 	}
-	
+
 	// Process the CSV records
 	for _, record := range records {
 		for _, item := range record {
@@ -329,7 +329,7 @@ func parseSetValuesWithSeparator(setValues string, separator string) map[string]
 			}
 		}
 	}
-	
+
 	return result
 }
 
