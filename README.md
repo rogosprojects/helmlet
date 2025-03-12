@@ -77,6 +77,7 @@ Get started with Helmlet in minutes:
 | `--template-dir` | Directory containing template files | `--template-dir k8s-templates/` |
 | `--value` | Values file(s) to load (can be specified multiple times) | `--value values.yaml` |
 | `--set` | Set values on the command line | `--set image.tag=v1.2.3,replicas=3` |
+| `--set-separator` | Separator for values in --set (default is comma) | `--set-separator ';'` |
 | `--output` | Write output to file (for single templates) | `--output rendered.yaml` |
 | `--output-dir` | Directory to write output files (for multiple templates) | `--output-dir rendered/` |
 | `--delimiter` | Custom template delimiters | `--delimiter '<%,%>'` |
@@ -111,6 +112,9 @@ Get started with Helmlet in minutes:
 
 # Use quoted values to include commas in values
 ./helmlet --template template.yaml --set 'key1="value1,has,commas"'
+
+# Use a different separator to avoid needing quotes for values containing commas
+./helmlet --template template.yaml --set 'key1=value1,with,commas;key2=value2' --set-separator ';'
 
 # Use custom delimiters to avoid conflicts
 ./helmlet --template template.yaml --value values.yaml --delimiter '<%,%>'
