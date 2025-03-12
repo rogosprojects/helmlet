@@ -33,6 +33,7 @@ func main() {
 	flag.StringVar(&templateDir, "template-dir", "", "Directory containing template files")
 	flag.StringVar(&outputDir, "output-dir", "", "Directory to write output files")
 	setValues := flag.String("set", "", "Set values on the command line (can specify multiple or separate values with commas: key1=val1,key2=val2)")
+	setValuesSep := flag.String("set-separator", ",", "Separator for values in --set (default is comma)")
 	outputFile := flag.String("output", "", "Output file (when processing a single template)")
 	delimiter := flag.String("delimiter", "{{,}}", "Template delimiter")
 	strict := flag.Bool("strict", false, "Strict mode (missing keys will cause an error)")
@@ -295,17 +296,21 @@ func readUTF8File(filename string) ([]byte, error) {
 }
 
 func parseSetValues(setValues string) map[string]interface{} {
+	return parseSetValuesWithSeparator(setValues, *setValuesSep)
+}
+
+func parseSetValuesWithSeparator(setValues string, separator string) map[string]interface{} {
 	result := make(map[string]interface{})
 	
-	// Use CSV parsing to handle commas within quoted values
+	// Use CSV parsing to handle values within quoted strings
 	r := csv.NewReader(strings.NewReader(setValues))
-	r.Comma = ','
+	r.Comma = rune(separator[0])
 	r.LazyQuotes = true
 	
 	records, err := r.ReadAll()
 	if err != nil {
 		// Fallback to simple splitting if CSV parsing fails
-		pairs := strings.Split(setValues, ",")
+		pairs := strings.Split(setValues, separator)
 		for _, pair := range pairs {
 			kv := strings.SplitN(pair, "=", 2)
 			if len(kv) == 2 {
